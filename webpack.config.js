@@ -6,6 +6,7 @@ var APP_DIR = path.resolve(__dirname, 'public');
 
 module.exports = {
   entry: [
+      'react-hot-loader/patch',
       'webpack/hot/dev-server',
       'webpack-hot-middleware/client',
       path.join(BUILD_DIR, 'index.jsx')
@@ -13,18 +14,14 @@ module.exports = {
     output: {
       path: path.join(APP_DIR, 'js'),
       filename: 'bundle.js',
-      publicPath: '/js/'
+      publicPath: '/'
     },
     module: {
       loaders: [
         {
           test: /\.jsx?$/, 
-          loaders: ['react-hot-loader/webpack', 'babel-loader'], 
+          loaders: ['babel-loader'],
           exclude: /node_modules/
-        }, {
-          test: /\.js$/, 
-          exclude: /node_modules/, 
-          loader: 'babel-loader'
         }, {
           test: /\.css$/, 
           loader: "style-loader!css-loader"
