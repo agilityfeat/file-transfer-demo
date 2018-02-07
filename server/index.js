@@ -12,8 +12,10 @@ let wpconf = require(path.join(__dirname, '../webpack.config.js'));
 let compiler = webpack(wpconf);
 
 app.use(wpDevMiddleware(compiler, {
-  noInfo: true,
-  publicPath: wpconf.output.publicPath
+  publicPath: wpconf.output.publicPath,
+  stats: {
+    colors: true
+  }
 }));
 
 app.use(wpHotMiddleware(compiler));
@@ -33,6 +35,6 @@ wss.on('connection', (ws) => {
 });
 
 app.listen(process.env.APP_PORT, () => {
-  if(process.env.APP_PORT === undefined) throw Error('port not defined');
-  console.log(`listening on port: ${process.env.APP_PORT}`);
+  if(process.env.APP_PORT === undefined) throw Error('[ERR] port not defined');
+  console.log(`[OK] listening on port: ${process.env.APP_PORT}\n`);
 });
