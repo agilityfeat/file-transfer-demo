@@ -5,6 +5,7 @@ import path from 'path';
 import webpack from 'webpack';
 import wpDevMiddleware from 'webpack-dev-middleware';
 import wpHotMiddleware from 'webpack-hot-middleware';
+import {green, yellow, logSuccess, logError, logInfo} from './utils/logHelper';
 
 let wss = new WebSocket.Server({port: 8080});
 let app = express();
@@ -35,9 +36,12 @@ wss.on('connection', (ws) => {
     switch(payload.type) {
       case 'register':
         clients = [...clients, {uuid: payload.uuid, ws}];
-        console.log(`[OK] client [${payload.uuid}] registered`);
+        logSuccess(`client [${yellow(payload.uuid)}] registered`);
+        break;
+      case 'logonline':
         console.log('----------- ONLINE CLIENTS -------------')
-        _.forEach(clients, (client) => console.log(`[o] ${client.uuid}`))
+        _.forEach(clients, (client) => console.log(`[${green('o')}] ${client.uuid}`))
+        break;
     }
   });
 
@@ -49,5 +53,5 @@ wss.on('connection', (ws) => {
 
 app.listen(process.env.APP_PORT, () => {
   if(process.env.APP_PORT === undefined) throw Error('[ERR] port not defined');
-  console.log(`[OK] listening on port: ${process.env.APP_PORT}`);
+  logSuccess(`listening on port: ${process.env.APP_PORT}`);
 });
