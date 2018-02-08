@@ -1,10 +1,10 @@
 import {combineReducers} from 'redux';
 import {connection} from './connectionReducer';
-import {messages} from './messagesReducer';
+import {webrtc} from './webrtcReducer';
 
 const fileApp = combineReducers({
   connection,
-  messages
+  webrtc
 });
 
 export default fileApp;
