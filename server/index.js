@@ -1,4 +1,5 @@
 import express from 'express';
+import _ from 'lodash';
 import WebSocket from 'ws';
 import path from 'path';
 import webpack from 'webpack';
@@ -10,6 +11,7 @@ let app = express();
 let wpconf = require(path.join(__dirname, '../webpack.config.js'));
 
 let compiler = webpack(wpconf);
+let clients  = [];
 
 app.use(wpDevMiddleware(compiler, {
   publicPath: wpconf.output.publicPath,
@@ -27,14 +29,25 @@ app.get('*', (req, res) => {
 });
 
 wss.on('connection', (ws) => {
-  console.log('client connected');
 
-  ws.on('message', (message) => {
-    console.log(message);
+  ws.on('message', (payload) => {
+    payload = JSON.parse(payload);
+    switch(payload.type) {
+      case 'register':
+        clients = [...clients, {uuid: payload.uuid, ws}];
+        console.log(`[OK] client [${payload.uuid}] registered`);
+        console.log('----------- ONLINE CLIENTS -------------')
+        _.forEach(clients, (client) => console.log(`[o] ${client.uuid}`))
+    }
   });
+
+  ws.on('close', () => {
+    console.log('client disconnected');
+    clients = _.filter(clients, (client) => client.ws.readyState !== 3);
+  })
 });
 
 app.listen(process.env.APP_PORT, () => {
   if(process.env.APP_PORT === undefined) throw Error('[ERR] port not defined');
-  console.log(`[OK] listening on port: ${process.env.APP_PORT}\n`);
+  console.log(`[OK] listening on port: ${process.env.APP_PORT}`);
 });
