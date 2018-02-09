@@ -5,8 +5,14 @@ import {
   WS_CONN_END,
   WS_CONN_ERR,
   WS_SEND_MSG,
+  wsSendMessage,
   WS_RECV_MSG
 } from '../actions/wsActions';
+
+import {
+  iceReceive,
+  offerReceive
+} from '../actions/webrtcActions';
 
 let ws = null;
 
@@ -16,8 +22,6 @@ export const wsMiddleware = store => next => action => {
   switch(action.type) {
     case WS_CONN_START:
       ws = new WebSocket(action.url);
-
-      /* setting up callbacks */
 
       ws.onopen = () => dispatch({type: WS_CONN_OK});
       ws.onclose = () => dispatch({type: WS_CONN_END});
@@ -30,18 +34,23 @@ export const wsMiddleware = store => next => action => {
       break;
     case WS_CONN_OK:
       next(action);
-      dispatch({
-        type: WS_SEND_MSG,
-        payload: {
-          type: 'register',
-          uuid: store.getState().connection.uuid
-        }
-      })
+      dispatch(wsSendMessage({
+        type: 'register',
+        uuid: store.getState().connection.uuid
+      }));
       break;
     case WS_SEND_MSG:
       let strPayload = JSON.stringify(action.payload);
-      console.log('sending:', strPayload);
       ws.send(strPayload);
+      break;
+    case WS_RECV_MSG:
+      let {data} = action.payload;
+      data = JSON.parse(data);
+
+      data.candidate && dispatch(iceReceive(data.candidate));
+      data.type && data.type === 'offer' && dispatch(offerReceive(data));
+
+      next(action);
       break;
     default:
       next(action);
