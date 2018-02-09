@@ -1,24 +1,26 @@
 import {
-  LOCAL_CONN_START,
+  CONN_START,
+  OFFER_CREATE,
+  OFFER_RECV,
+  ICE_RECV,
   DATA_CHANNEL_CREATE,
   DATA_CHANNEL_OPEN,
-  DATA_CHANNEL_CLOSE,
-  REMOTE_CONN_START,
-  REMOTE_DATA_CHANNEL_OK
+  DATA_CHANNEL_CLOSE
 } from '../actions/webrtcActions';
 
 const initialState = {
   connecting: false,
   connected: false,
-  iceCandidates: []
+  channel: null
 }
 
 export function webrtc(state = initialState, action) {
   switch(action.type) {
-    case LOCAL_CONN_START:
+    case CONN_START:
     case DATA_CHANNEL_CREATE:
       return Object.assign({}, state, {
         connecting: true,
+        channel: action.name
       });
     case DATA_CHANNEL_OPEN:
       return Object.assing({}, state, {
