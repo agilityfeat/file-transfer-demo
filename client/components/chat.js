@@ -37,6 +37,12 @@ export default class Chat extends Component {
           onClick={() => this.sendMessage('normal', 'hithere')}>
             Send a Message to Server
         </button>
+
+        <button 
+          disabled={!this.props.connection.connected}
+          onClick={() => this.props.boundLocalConnStart()}>
+            Create WebRTC Endpoint
+        </button>
       </div>
     );
   }
