@@ -5,7 +5,14 @@ import path from 'path';
 import webpack from 'webpack';
 import wpDevMiddleware from 'webpack-dev-middleware';
 import wpHotMiddleware from 'webpack-hot-middleware';
-import {green, yellow, logSuccess, logError, logInfo} from './utils/logHelper';
+import {
+  green, 
+  yellow, 
+  blue,
+  logSuccess, 
+  logError, 
+  logInfo
+} from './utils/logHelper';
 
 let wss = new WebSocket.Server({port: 8080});
 let app = express();
@@ -33,20 +40,43 @@ wss.on('connection', (ws) => {
 
   ws.on('message', (payload) => {
     payload = JSON.parse(payload);
+    let targetClients = _.filter(clients, (c) => c.uuid !== payload.uuid);
+
     switch(payload.type) {
       case 'register':
         clients = [...clients, {uuid: payload.uuid, ws}];
         logSuccess(`client [${yellow(payload.uuid)}] registered`);
         break;
+      case 'icecandidate':
+        logInfo(green(payload.uuid), 'has ice-candidate');
+
+        _.forEach(targetClients, (c) => {
+          c.ws.send(JSON.stringify(payload.content));
+          logSuccess('ice-candidate sent to:', c.uuid);
+        });
+
+        break;
+      case 'offer':
+        logInfo(green(payload.uuid), 'has offer');
+
+        _.forEach(targetClients, (c) => {
+          c.ws.send(JSON.stringify(payload.content));
+          logSuccess('offer sent to:', c.uuid);
+        });
+
+        break;
       case 'logonline':
         console.log('----------- ONLINE CLIENTS -------------')
-        _.forEach(clients, (client) => console.log(`[${green('o')}] ${client.uuid}`))
+        _.forEach(clients, (c) => console.log(`[${green('o')}] ${c.uuid}`))
+        break;
+      default:
+        logInfo(yellow(payload.uuid), 'says:', payload.content);
         break;
     }
   });
 
   ws.on('close', () => {
-    console.log('client disconnected');
+    logInfo('client disconnected');
     clients = _.filter(clients, (client) => client.ws.readyState !== 3);
   })
 });
