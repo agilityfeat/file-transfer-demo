@@ -65,6 +65,13 @@ wss.on('connection', (ws) => {
         });
 
         break;
+      case 'answer':
+        logInfo(blue(payload.uuid), 'is answering offer');
+        _.forEach(targetClients, (c) => {
+          c.ws.send(JSON.stringify(payload.content));
+          logSuccess('answer sent to:', c.uuid);
+        })
+        break;
       case 'logonline':
         console.log('----------- ONLINE CLIENTS -------------')
         _.forEach(clients, (c) => console.log(`[${green('o')}] ${c.uuid}`))

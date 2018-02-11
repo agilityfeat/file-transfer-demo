@@ -6,7 +6,8 @@ import {
 } from '../redux/actions/wsActions';
 
 import {
-  CONN_START
+  CONN_START,
+  channelSend
 } from '../redux/actions/webrtcActions';
 import Chat from '../components/chat';
 
@@ -22,7 +23,8 @@ function mapDispatchToProps(dispatch, ownProps) {
     boundWsConnectionStart: (url) => dispatch(wsConnectionStart(url)),
     boundWsConnectionStop:  () => dispatch({type: WS_CONN_STOP}),
     boundWsSendMessage:     (payload) => wsSendMessage(payload),
-    boundLocalConnStart:    () => dispatch({type: CONN_START})
+    boundLocalConnStart:    () => dispatch({type: CONN_START}),
+    boundChannelSend:       (payload) => dispatch(channelSend(payload))
   }
 }
 

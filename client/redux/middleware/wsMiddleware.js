@@ -11,7 +11,8 @@ import {
 
 import {
   iceReceive,
-  offerReceive
+  offerReceive,
+  answerReceive
 } from '../actions/webrtcActions';
 
 let ws = null;
@@ -49,6 +50,7 @@ export const wsMiddleware = store => next => action => {
 
       data.candidate && dispatch(iceReceive(data.candidate));
       data.type && data.type === 'offer' && dispatch(offerReceive(data));
+      data.type && data.type === 'answer' && dispatch(answerReceive(data));
 
       next(action);
       break;

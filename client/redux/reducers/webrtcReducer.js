@@ -5,13 +5,15 @@ import {
   ICE_RECV,
   DATA_CHANNEL_CREATE,
   DATA_CHANNEL_OPEN,
-  DATA_CHANNEL_CLOSE
+  DATA_CHANNEL_CLOSE,
+  DC_MSG_RECV,
+  DC_MSG_SEND
 } from '../actions/webrtcActions';
 
 const initialState = {
   connecting: false,
   connected: false,
-  channel: null
+  messages: []
 }
 
 export function webrtc(state = initialState, action) {
@@ -23,9 +25,14 @@ export function webrtc(state = initialState, action) {
         channel: action.name
       });
     case DATA_CHANNEL_OPEN:
-      return Object.assing({}, state, {
+      return Object.assign({}, state, {
         connecting: false,
         connected: true
+      });
+    case DC_MSG_SEND:
+    case DC_MSG_RECV:
+      return Object.assign({}, state, {
+        messages: [...state.messages, action.payload],
       });
     default:
       return state;

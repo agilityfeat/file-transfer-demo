@@ -2,11 +2,16 @@ import {
   CONN_START,
   OFFER_CREATE,
   ANSWER_CREATE,
+  ANSWER_RECV,
   OFFER_RECV,
   ICE_RECV,
   DATA_CHANNEL_CREATE,
   DATA_CHANNEL_OPEN,
-  DATA_CHANNEL_CLOSE
+  DATA_CHANNEL_CLOSE,
+  DATA_CHANNEL_CONNECT,
+  DC_MSG_RECV,
+  DC_MSG_SEND,
+  channelRecv
 } from '../actions/webrtcActions';
 
 import {wsSendMessage} from '../actions/wsActions';
@@ -15,6 +20,13 @@ import {wsSendMessage} from '../actions/wsActions';
 let conn = null;
 let channel = null;
 let uuid = null;
+
+function addChannelCallbacks(channel, dispatch) {
+  channel.onopen = () => dispatch({type: DATA_CHANNEL_OPEN});
+  channel.onclose = () => dispatch({type: DATA_CHANNEL_CLOSE});
+  channel.onmessage = (e) => dispatch(channelRecv(JSON.parse(e.data)));
+  return channel;
+}
 
 
 export const webrtcMiddleware = store => next => action => {
@@ -34,16 +46,20 @@ export const webrtcMiddleware = store => next => action => {
       };
 
       next(action);
-      dispatch({type: DATA_CHANNEL_CREATE, name: `local-${uuid}`});
+      dispatch({type: DATA_CHANNEL_CREATE, name: `channel-${uuid}`});
       break;
     case DATA_CHANNEL_CREATE:
       channel = conn.createDataChannel(action.name);
-
-      channel.onopen = () => dispatch({type: DATA_CHANNEL_OPEN});
-      channel.onclose = () => dispatch({type: DATA_CHANNEL_CLOSE});
+      channel = addChannelCallbacks(channel, dispatch);
 
       next(action);
       dispatch({type: OFFER_CREATE});
+      break;
+    case DATA_CHANNEL_CONNECT:
+      channel = action.event.channel;
+      channel = addChannelCallbacks(channel, dispatch);
+
+      next(action);
       break;
     case OFFER_CREATE:
       uuid = getState().connection.uuid;
@@ -63,8 +79,9 @@ export const webrtcMiddleware = store => next => action => {
     case OFFER_RECV:
       conn = new RTCPeerConnection();
       conn.setRemoteDescription(action.offer);
-      next(action);
+      conn.ondatachannel = (event) => dispatch({type: DATA_CHANNEL_CONNECT, event});
 
+      next(action);
       dispatch({type: ANSWER_CREATE});
       break;
     case ANSWER_CREATE:
@@ -82,9 +99,18 @@ export const webrtcMiddleware = store => next => action => {
       });
 
       break;
+    case ANSWER_RECV:
+      conn.setRemoteDescription(action.answer);
+      next(action);
+      break;
     case ICE_RECV:
       let candidate = new RTCIceCandidate(action);
       conn.addIceCandidate(candidate);
+
+      next(action);
+      break;
+    case DC_MSG_SEND:
+      channel.send(JSON.stringify(action.payload));
 
       next(action);
       break;
