@@ -1,0 +1,32 @@
+.btn-container > * {
+  margin: 2.5px;
+}
+
+.btn-container-input > * {
+  margin-top: 2.5px;
+  margin-bottom: 2.5px;
+}
+
+.messages-window {
+  margin-top: 2.5px;
+  margin-bottom: 2.5px;
+  background-color: #f0f0f0;
+  min-height: 400px;
+  max-height: 400px;
+  padding: 10px;
+  border-radius: 8px;
+  overflow-y: auto;
+}
+
+.message {
+  padding: 10px;
+  margin: 0px;
+}
+
+.message-user {
+  background-color: darkgrey;
+}
+
+.message-guest {
+  background-color: lightgrey;
+}
