@@ -6,17 +6,19 @@ import {
   WS_CONN_END,
   WS_CONN_ERR,
   WS_SEND_MSG,
-  WS_RECV_MSG
+  WS_RECV_MSG,
+  WS_PEER_STATUS_RECV
 } from '../actions/wsActions';
 
 const initialState = {
   url: null,
   connected: false,
   messages: [],
-  uuid: null
+  uuid: null,
+  peersAvailable: 0
 }
 
-export function connection(state = initialState, action) {
+export function websocket(state = initialState, action) {
   switch(action.type) {
     case WS_CONN_START:
       return Object.assign({}, state, {
@@ -26,6 +28,10 @@ export function connection(state = initialState, action) {
       return Object.assign({}, state, {
         connected: true,
         uuid: uuid()
+      });
+    case WS_PEER_STATUS_RECV:
+      return Object.assign({}, state, {
+        peersAvailable: action.payload.peersAvailable
       });
     case WS_CONN_END:
     case WS_CONN_ERR:

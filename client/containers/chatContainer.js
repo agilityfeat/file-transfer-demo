@@ -14,7 +14,7 @@ import Chat from '../components/chat';
 function mapStateToProps(state, ownState) {
   return {
     webrtc: state.webrtc,
-    connection: state.connection
+    websocket: state.websocket
   };
 }
 

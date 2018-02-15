@@ -1,9 +1,9 @@
 import {combineReducers} from 'redux';
-import {connection} from './connectionReducer';
+import {websocket} from './wsReducer';
 import {webrtc} from './webrtcReducer';
 
 const fileApp = combineReducers({
-  connection,
+  websocket,
   webrtc
 });
 

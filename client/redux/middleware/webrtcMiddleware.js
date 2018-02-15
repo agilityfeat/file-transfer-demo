@@ -13,9 +13,7 @@ import {
   DC_MSG_SEND,
   channelRecv
 } from '../actions/webrtcActions';
-
 import {wsSendMessage} from '../actions/wsActions';
-
 
 let conn = null;
 let channel = null;
@@ -34,7 +32,7 @@ export const webrtcMiddleware = store => next => action => {
 
   switch(action.type) {
     case CONN_START:
-      uuid = getState().connection.uuid;
+      uuid = getState().websocket.uuid;
       conn = new RTCPeerConnection();
 
       conn.onicecandidate = (e) => {
@@ -46,6 +44,7 @@ export const webrtcMiddleware = store => next => action => {
       };
 
       next(action);
+      dispatch(wsSendMessage({type: 'getpeer', uuid}));
       dispatch({type: DATA_CHANNEL_CREATE, name: `channel-${uuid}`});
       break;
     case DATA_CHANNEL_CREATE:
@@ -62,7 +61,7 @@ export const webrtcMiddleware = store => next => action => {
       next(action);
       break;
     case OFFER_CREATE:
-      uuid = getState().connection.uuid;
+      uuid = getState().websocket.uuid;
 
       conn.createOffer().then(offer => {
         dispatch(wsSendMessage({
@@ -85,7 +84,7 @@ export const webrtcMiddleware = store => next => action => {
       dispatch({type: ANSWER_CREATE});
       break;
     case ANSWER_CREATE:
-      uuid = getState().connection.uuid;
+      uuid = getState().websocket.uuid;
 
       conn.createAnswer().then(answer => {
         dispatch(wsSendMessage({
