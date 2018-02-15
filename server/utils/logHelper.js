@@ -6,7 +6,7 @@ export const blue = (str) => chalk.blue.bold(str)
 export const yellow = (str) => chalk.yellow.bold(str)
 
 export const logSuccess = (...messages) => {
-  console.log(`[${green('OK')}]`, ...messages);
+  console.log(`[${green('OK')}] `, ...messages);
 }
 
 export const logError = (...messages) => {
