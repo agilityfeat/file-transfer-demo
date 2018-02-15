@@ -6,6 +6,7 @@ import {
   WS_CONN_ERR,
   WS_SEND_MSG,
   wsSendMessage,
+  wsPeerStatusReceive,
   WS_RECV_MSG
 } from '../actions/wsActions';
 
@@ -37,7 +38,7 @@ export const wsMiddleware = store => next => action => {
       next(action);
       dispatch(wsSendMessage({
         type: 'register',
-        uuid: store.getState().connection.uuid
+        uuid: store.getState().websocket.uuid
       }));
       break;
     case WS_SEND_MSG:
@@ -48,6 +49,7 @@ export const wsMiddleware = store => next => action => {
       let {data} = action.payload;
       data = JSON.parse(data);
 
+      typeof data.peersAvailable !== 'undefined' && dispatch(wsPeerStatusReceive(data));
       data.candidate && dispatch(iceReceive(data.candidate));
       data.type && data.type === 'offer' && dispatch(offerReceive(data));
       data.type && data.type === 'answer' && dispatch(answerReceive(data));
