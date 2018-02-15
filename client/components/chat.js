@@ -11,47 +11,53 @@ export default class Chat extends Component {
     this.props.boundWsConnectionStart('ws://localhost:8080');
   }
 
-  sendMessage(type, message) {
-    const {connection, boundWsSendMessage} = this.props;
+  componentWillUnmount() {
+    this.props.boundWsConnectionStop();
+  }
 
-    if(connection.connected) {
+  sendMessage(type, message) {
+    const {websocket, boundWsSendMessage} = this.props;
+
+    if(websocket.connected) {
       boundWsSendMessage({
         type,
         message,
-        uuid: connection.uuid
+        uuid: websocket.uuid
       });
     }
   }
 
   render() {
+    let {websocket, webrtc} = this.props;
     return(
       <div className="col-md-6 col-md-offset-3">
         <div className="col-md-12 text-center">
-          <h3>{this.props.connection.connected ? 'WebSocket Connected': 'Offline'}</h3>
-          <h3>{this.props.webrtc.connecting ? 'Connecting WebRTC...': 
-               this.props.webrtc.connected  ? 'WebRTC Connected' : 'Data Channel Inactive'}</h3>
+          <h3>{websocket.connected ? 'WebSocket Connected': 'Offline'}</h3>
+          <h3>{`${websocket.peersAvailable} Peers Available`}</h3>
+          <h3>{webrtc.connecting ? 'Connecting WebRTC...': 
+               webrtc.connected  ? 'WebRTC Connected' : 'Data Channel Inactive'}</h3>
         </div>
         <div className="col-md-6 col-md-offset-3 btn-container">
           <button 
             className="btn btn-info col-md-12"
-            disabled={!this.props.connection.connected}
+            disabled={!websocket.connected || websocket.peersAvailable < 1 || webrtc.connected}
             onClick={() => this.props.boundLocalConnStart()}>
               Open Data Channel
           </button>
 
           <button 
             className="btn btn-danger col-md-12"
-            disabled={!this.props.connection.connected}
+            disabled={!webrtc.connected}
             onClick={() => this.props.boundWsConnectionStop()}>
               Stop Websocket
           </button>
         </div>
         <div className="col-md-6 col-md-offset-3">
           <Messages 
-            uuid={this.props.connection.uuid}
+            uuid={websocket.uuid}
             sendMessage={this.props.boundChannelSend}
-            messages={this.props.webrtc.messages}
-            connected={this.props.webrtc.connected}/>
+            messages={webrtc.messages}
+            connected={webrtc.connected}/>
         </div>
       </div>
     );
