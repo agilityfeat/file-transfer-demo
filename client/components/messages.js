@@ -28,17 +28,25 @@ export default class Messages extends Component {
     });
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if(prevProps.messages.length < this.props.messages.length){
+      let {messageBox} = this.refs;
+      messageBox.scrollTop = messageBox.scrollHeight + 300;
+    }
+  }
+
   renderMessages(messages) {
     return _.map(messages, (m, i) => {
       let cn = m.author === this.props.uuid ? "message-user" : "message-guest";
-      return <p className={`message ${cn}`} key={`m-${i}`}>{m.author.split('-')[0]}: {m.content}</p>;
+      let sn = m.author === this.props.uuid ? "You" : "Someone";
+      return <p className={`message ${cn}`} key={`m-${i}`}>{sn}: {m.content}</p>;
     });
   }
 
   render() {
     return(
       <div>
-        <div className="messages-window" id="messages-window">
+        <div ref="messageBox" className="messages-window" id="messages-window">
           {this.renderMessages(this.props.messages)}
         </div>
         <div className="btn-container-input">
