@@ -14,18 +14,33 @@ import {
   channelRecv
 } from '../actions/webrtcActions';
 import {wsSendMessage} from '../actions/wsActions';
+import {encode, decode} from 'base64-arraybuffer';
 
 let conn = null;
 let channel = null;
 let uuid = null;
+let file = "";
 
 function addChannelCallbacks(channel, dispatch) {
   channel.onopen = () => dispatch({type: DATA_CHANNEL_OPEN});
   channel.onclose = () => dispatch({type: DATA_CHANNEL_CLOSE});
-  channel.onmessage = (e) => dispatch(channelRecv(JSON.parse(e.data)));
+  channel.onmessage = (e) => dispatch(channelRecv(e.data));
   return channel;
 }
 
+function processFileMessage(file, action) {
+  if(action.payload.type === "file") {
+    file += action.payload.content;
+  } else if (action.payload.type === "file-end") {
+    let blob = new Blob([decode(file)], {type: action.payload.content});
+    let imageUrl = URL.createObjectURL(blob);
+    action.payload.filetype = action.payload.content
+    action.payload.content = imageUrl;
+    file = "";
+  }
+
+  return [file, action];
+}
 
 export const webrtcMiddleware = store => next => action => {
   const {dispatch, getState} = store;
@@ -108,8 +123,16 @@ export const webrtcMiddleware = store => next => action => {
 
       next(action);
       break;
+    case DC_MSG_RECV | DC_MSG_SEND:
+    case DC_MSG_RECV:
+      action.payload = JSON.parse(action.payload);
+      [file, action] = processFileMessage(file, action);
+
+      next(action);
+      break;
     case DC_MSG_SEND:
       channel.send(JSON.stringify(action.payload));
+      [file, action] = processFileMessage(file, action);
 
       next(action);
       break;
