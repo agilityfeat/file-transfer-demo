@@ -6,7 +6,7 @@ import ChatContainer from './containers/chatContainer';
 const App = () => {
   return (
     <Provider store={store}>
-      <div>
+      <div className="main-container">
         <ChatContainer/>
       </div>
     </Provider>

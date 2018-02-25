@@ -120,6 +120,10 @@ wss.on('connection', (ws) => {
     busyClients = _.filter(busyClients, (c) => c.ws.readyState !== 3);
     updatePeersAvailable({busy: busyClients, available: clients});
   });
+
+  ws.on('error', (err) => {
+    logError('websocket error', err);
+  });
 });
 
 app.listen(process.env.APP_PORT, () => {
