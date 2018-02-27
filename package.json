@@ -5,7 +5,7 @@
   "main": "server/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "./node_modules/.bin/nodemon --watch ./server/ --exec ./node_modules/.bin/babel-node server/index.js"
+    "start": ". ./.env && ./node_modules/.bin/nodemon --watch ./server/ --exec ./node_modules/.bin/babel-node server/index.js"
   },
   "author": "Fernando Vásquez",
   "license": "MIT",
