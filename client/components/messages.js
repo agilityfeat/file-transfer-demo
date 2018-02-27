@@ -1,6 +1,5 @@
 import React, {Component, PropTypes} from 'react';
 import _ from 'lodash';
-import {splitAndBlob} from '../utils';
 import {encode, decode} from 'base64-arraybuffer';
 
 export default class Messages extends Component {
@@ -55,14 +54,14 @@ export default class Messages extends Component {
       let sn = m.author === uuid ? "You" : "Someone";
       switch(m.type) {
         case "message":
-          return <p className={`message ${cn}`} key={`m-${i}`}>{sn}: {m.content}</p>;
+          return <p className={`message ${cn}`} key={`m-${i}`}><strong className={cn}>{sn}:</strong> {m.content}</p>;
         case "file-end":
           return m.filetype.indexOf("image") !== -1 ? 
           (<p className={`message ${cn}`} key={`m-${i}`}>
-            {sn}: <a target="_blank" className="img-container" href={m.content}><img src={m.content}/></a>
+            <strong className={cn}>{sn}:</strong> <a target="_blank" className="img-container" href={m.content}><img src={m.content}/></a>
           </p>) :
           (<p className={`message ${cn}`} key={`m-${i}`}>
-            {sn}: <a target="_blank" href={m.content}>download {m.filetype} file.</a>
+            <strong className={cn}>{sn}:</strong> <a target="_blank" href={m.content}>download {m.filetype} file.</a>
           </p>);
       }
     });
@@ -98,7 +97,7 @@ export default class Messages extends Component {
     const {file} = this.state;
     const {connected, messages} = this.props;
     return(
-      <div className="messages-window-container col-md-12 col-sm-12">
+      <div className="messages-window-container col-md-12 col-sm-12 col-xs-12">
         <div ref="messageBox" className="messages-window" id="messages-window">
           {this.renderMessages(this.props.messages)}
         </div>
@@ -111,7 +110,7 @@ export default class Messages extends Component {
               placeholder="Send a message"
               value={this.state.message}
               onChange={(e) => this.setState({message: e.target.value})}/>
-            <div className="input-btn-wrapper">
+            <div className="input-btn-wrapper col-md-12 col-xs-12">
               <button 
                 type="submit"
                 className="btn btn-success"
