@@ -20,7 +20,7 @@ import {
 } from './utils/wsHelper';
 
 
-let wss = new WebSocket.Server({port: 8080});
+let wss = new WebSocket.Server({port: process.env.WS_PORT || 8080});
 let app = express();
 let wpconf = require(path.join(__dirname, '../webpack.config.js'));
 
@@ -126,7 +126,7 @@ wss.on('connection', (ws) => {
   });
 });
 
-app.listen(process.env.APP_PORT, () => {
-  if(process.env.APP_PORT === undefined) throw Error('[ERR] port not defined');
-  logSuccess(`listening on port: ${process.env.APP_PORT}`);
+app.listen(process.env.APP_PORT || 3000, () => {
+  logSuccess(`listening on port: ${process.env.APP_PORT || 3000}`);
+  logSuccess(`websocket server on port: ${process.env.WS_PORT || 8080}`);
 });

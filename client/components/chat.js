@@ -1,5 +1,6 @@
 import React, {Component, PropTypes} from 'react';
 import Messages from './messages';
+import config from '../config';
 
 export default class Chat extends Component {
   constructor() {
@@ -8,7 +9,7 @@ export default class Chat extends Component {
   }
 
   componentWillMount() {
-    this.props.boundWsConnectionStart('ws://localhost:8080');
+    this.props.boundWsConnectionStart(config.wsUrl);
   }
 
   componentWillUnmount() {
@@ -31,14 +32,14 @@ export default class Chat extends Component {
     let {websocket, webrtc} = this.props;
     return(
       <div className="main-container">
-        <div className="header">
-          <div className="pull-right status-container">
-            <p className="pull-right">{websocket.connected ? 'WebSocket Connected': 'Offline'}</p>
-            <p className="pull-right">{`${websocket.peersAvailable} Peers Available`}</p>
-            <p className="pull-right">{webrtc.connecting ? 'Connecting WebRTC...': 
+        <div className="header col-md-12 col-xs-12">
+          <div className="pull-right text-center status-container col-xs-12 col-md-8">
+            <p className="pull-right text-center col-xs-12 col-md-3">{websocket.connected ? 'WebSocket Connected': 'WebSocket Offline'}</p>
+            <p className="pull-right text-center col-xs-12 col-md-3">{`${websocket.peersAvailable} Peers Available`}</p>
+            <p className="pull-right text-center col-xs-12 col-md-3">{webrtc.connecting ? 'Connecting WebRTC...': 
                  webrtc.connected  ? 'WebRTC Peer Connected' : 'WebRTC Inactive'}</p>
           </div>
-          <div className="btn-container">
+          <div className="btn-container col-xs-12 col-md-4">
             <button 
               className="btn btn-info pull-left"
               disabled={!websocket.connected || websocket.peersAvailable < 1 || webrtc.connected}

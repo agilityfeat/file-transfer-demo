@@ -15,6 +15,8 @@ import {
 } from '../actions/webrtcActions';
 import {wsSendMessage} from '../actions/wsActions';
 import {encode, decode} from 'base64-arraybuffer';
+import _ from 'lodash';
+import config from '../../config';
 
 let conn = null;
 let channel = null;
@@ -47,8 +49,11 @@ export const webrtcMiddleware = store => next => action => {
 
   switch(action.type) {
     case CONN_START:
+      let iceServers = [config.stun, config.useTurn ? config.turn : null];
+      iceServers = _.filter(iceServers, (server) => server !== null);
+
       uuid = getState().websocket.uuid;
-      conn = new RTCPeerConnection();
+      conn = new RTCPeerConnection({iceServers});
 
       conn.onicecandidate = (e) => {
         e.candidate && dispatch(wsSendMessage({
