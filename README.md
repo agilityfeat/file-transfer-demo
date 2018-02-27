@@ -4,6 +4,8 @@ A small peer to peer file transfer demo, implemented with WebSocket signaling, R
 to illustrate the flow of RTCPeer connections and datachannels, with the use of `redux-logger`
 for a clear and consice way of illustrating the flow of data.
 
+![file-demo-gif](https://i.imgur.com/WnLiuAM.gif)
+
 ## Running the Demo
 
 All you need to do in order to get started is:
