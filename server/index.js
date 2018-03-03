@@ -5,6 +5,9 @@ import path from 'path';
 import webpack from 'webpack';
 import wpDevMiddleware from 'webpack-dev-middleware';
 import wpHotMiddleware from 'webpack-hot-middleware';
+import fs from 'fs';
+import http from 'http';
+import https from 'https';
 import {
   green, 
   yellow, 
@@ -20,9 +23,18 @@ import {
 } from './utils/wsHelper';
 
 
+let useHttps = process.env.USE_HTTPS === 'true';
+let wpconf = require(path.join(__dirname, '../webpack.config.js'));
 let wss = new WebSocket.Server({port: process.env.WS_PORT || 8080});
 let app = express();
-let wpconf = require(path.join(__dirname, '../webpack.config.js'));
+let httpServer = http.createServer(app);
+let httpsServer = null;
+
+if(useHttps) {
+  let key = fs.readFileSync(path.join(__dirname, '../', process.env.PRIVATE_KEY), 'utf8');
+  let cert = fs.readFileSync(path.join(__dirname, '../', process.env.CERTIFICATE), 'utf8');
+  httpsServer = https.createServer({key, cert}, app);
+}
 
 let compiler = webpack(wpconf);
 let clients  = [];
@@ -126,7 +138,14 @@ wss.on('connection', (ws) => {
   });
 });
 
-app.listen(process.env.APP_PORT || 3000, () => {
-  logSuccess(`listening on port: ${process.env.APP_PORT || 3000}`);
-  logSuccess(`websocket server on port: ${process.env.WS_PORT || 8080}`);
-});
+if(useHttps){
+  httpsServer.listen(process.env.APP_PORT || 3000, () => {
+    logSuccess(`secure listening on port: ${process.env.APP_PORT || 3000}`);
+    logSuccess(`secure websocket server on port: ${process.env.WS_PORT || 8080}`);
+  });
+} else {
+  httpServer.listen(process.env.APP_PORT || 3000, () => {
+    logSuccess(`insecure listening on port: ${process.env.APP_PORT || 3000}`);
+    logSuccess(`insecure websocket server on port: ${process.env.WS_PORT || 8080}`);
+  });
+}
